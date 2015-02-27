@@ -44,11 +44,13 @@ class EJOpack
 		'font-awesome',
 		'dynamic-sidebars',
 		'wordpress-admin-control',
+		'testimonials-heavy',
 	);
 
 	public static $active_modules = array(
 		'menu-marquee',
 		'wordpress-admin-control',
+		'testimonials-heavy',
 	);
 
 	//* Plugin setup.
