@@ -3,7 +3,7 @@
  * Plugin Name: EJOpack
  * Plugin URI: http://github.com/ejoweb
  * Description: Bundle of modules to support and extend the theme.
- * Version: 0.1.0
+ * Version: 0.2.1
  * Author: Erik Joling
  * Author URI: http://www.erikjoling.nl/
  *
@@ -18,7 +18,7 @@
  * @license   http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  */
 
-class EJOpack 
+final class EJOpack 
 {
 	//* Holds the instance of this class.
 	private static $instance;
@@ -31,6 +31,18 @@ class EJOpack
 
 	//* Stores the directory URI for this plugin.
 	public static $uri;
+
+	//* Stores the base directory path for this plugin.
+	public static $base_dir;
+
+	//* Stores the base directory uri for this plugin.
+	public static $base_uri;
+
+	//* Stores the modules directory path for this plugin.
+	public static $modules_dir;
+
+	//* Stores the modules directory uri for this plugin.
+	public static $modules_uri;
 
 	//* Modules setup
 	public static $available_modules = array(
@@ -48,18 +60,21 @@ class EJOpack
 	);
 
 	public static $active_modules = array(
-		'menu-marquee',
-		'wordpress-admin-control',
+		// 'menu-marquee',
+		// 'wordpress-admin-control',
 		'testimonials-heavy',
 	);
 
 	//* Plugin setup.
-	public function __construct() {
+	private function __construct() {
 
 		/* Set the properties needed by the plugin. */
 		add_action( 'plugins_loaded', array( $this, 'setup' ), 1 );
 
-		/* Load the functions files. */
+		/* Load the modules files. */
+		add_action( 'plugins_loaded', array( $this, 'load_base' ), 2 );
+
+		/* Load the modules files. */
 		add_action( 'plugins_loaded', array( $this, 'load_modules' ), 3 );
 	}
 
@@ -70,6 +85,14 @@ class EJOpack
 		self::$dir = trailingslashit( plugin_dir_path( __FILE__ ) );
 		self::$uri = trailingslashit( plugin_dir_url(  __FILE__ ) );
 
+		// Store base directory path and url of this plugin
+		self::$base_dir = trailingslashit( self::$dir . 'base' );
+		self::$base_uri = trailingslashit( self::$uri . 'base' );
+
+		// Store module directory path and url of this plugin
+		self::$modules_dir = trailingslashit( self::$dir . 'modules' );
+		self::$modules_uri = trailingslashit( self::$uri . 'modules' );
+
 		// Get metadata of this plugin
 		$plugin_data = get_plugin_data( __FILE__ );
 
@@ -77,9 +100,17 @@ class EJOpack
 		self::$version = $plugin_data['Version'];
 	}
 
+	//* Loads base.
+	public function load_base() 
+	{
+		require self::$base_dir . 'write_log.php';
+	}
+
 	//* Loads modules.
 	public function load_modules() 
 	{
+		require self::$modules_dir . 'module.php';
+
 		// Load the files of all active modules
 		foreach (self::$available_modules as $module) {
 
@@ -94,7 +125,6 @@ class EJOpack
 
 				require $file;
 			}
-
 		}
 	}
 
@@ -107,17 +137,17 @@ class EJOpack
 	//* Generate a module's path from its slug.
 	public static function get_module_path( $slug ) 
 	{
-		return self::$dir . "modules/{$slug}/";
+		return trailingslashit( self::$modules_dir . $slug );
 	}
 
 	//* Generate a module's uri from its slug.
 	public static function get_module_uri( $slug ) 
 	{
-		return self::$uri . "modules/{$slug}/";
+		return trailingslashit( self::$modules_uri . $slug );
 	}
 
 	//* Returns the instance.
-	public static function init() 
+	public static function get_instance() 
 	{
 		if ( !self::$instance )
 			self::$instance = new self;
@@ -126,5 +156,4 @@ class EJOpack
 	}
 }
 
-EJOpack::init();
-
+EJOpack::get_instance();

@@ -1,18 +1,18 @@
 <?php
 
-class Menu_Marquee 
+final class Menu_Marquee 
 {
 	//* Holds the instance of this class.
 	private static $instance;
 
 	//* Store the slug of this module
-	public static $slug = 'menu-marquee';
+	public $slug = 'menu-marquee';
 
 	//* Version number of this module
-	public static $version = '1.0.0';
+	public $version = '1.0.0';
 
 	//* Plugin setup.
-	public function __construct() 
+	private function __construct() 
 	{
 		add_action( 'plugins_loaded', array( $this, 'includes' ) );
 		add_action( 'widgets_init', array( $this, 'register_widget' ) );
@@ -22,7 +22,7 @@ class Menu_Marquee
 	//*
 	public function includes() 
 	{
-		require_once( EJOpack::get_module_path( self::$slug ) . 'menu-marquee-widget.php' );
+		require_once( EJOpack::get_module_path( $this->slug ) . 'menu-marquee-widget.php' );
 	}
 
 	//*
@@ -36,11 +36,11 @@ class Menu_Marquee
 	{
 		//* Menu Marquee
 		//* filter toevoegen zodat ik op laag niveau conditionals kan toepassen
-		wp_enqueue_script( 'jquery-marquee', EJOpack::get_module_uri( self::$slug ) . 'js/jquery.marquee.min.js', array( 'jquery' ), self::$version, true );
+		wp_enqueue_script( 'jquery-marquee', EJOpack::get_module_uri( $this->slug ) . 'js/jquery.marquee.min.js', array( 'jquery' ), $this->version, true );
 	}
 
 	//* Returns the instance.
-	public static function init() 
+	public static function get_instance() 
 	{
 		if ( !self::$instance )
 			self::$instance = new self;
@@ -49,4 +49,4 @@ class Menu_Marquee
 	}
 }
 
-Menu_Marquee::init();
+Menu_Marquee::get_instance();
