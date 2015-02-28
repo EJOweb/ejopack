@@ -1,0 +1,60 @@
+#ejo-tabs a.nav-tab {
+
+}
+
+#ejo-tabs-wrapper div.tab-content {
+	display: none;	
+}
+
+#ejo-tabs-wrapper div.tab-content.active {
+	display: block;
+}
+
+/* Sortable Table */
+#single-settings table {
+	border: 1px solid #e5e5e5;
+	background-color: #fdfdfd;
+}
+
+	#single-settings table tr {
+		border-bottom: 1px solid #e5e5e5;
+		width: 100%;
+	}
+
+	#single-settings table tr.ui-sortable-helper {
+		border: 1px solid #e5e5e5;
+		background-color: #fff;
+		display: table;
+	}
+
+		#single-settings table tr td {
+			display: table-cell; /* Override wordpress small-screen settings */
+		}
+
+		#single-settings table .ejo-move {
+			
+		}
+
+		#single-settings table .ejo-move:before {
+			cursor: move;
+		}
+
+/* Table size */
+#single-settings table {
+	max-width: 400px;
+}
+
+	#single-settings table tr td:nth-child(1) {
+		width: 40px;
+		padding-left: 16px;
+	}
+
+	#single-settings table tr td:nth-child(2) {
+		width: 200px;
+	}
+
+	#single-settings table tr td:nth-child(3) {
+		width: 160px;
+		text-align: right;
+		padding-right: 16px;
+	}

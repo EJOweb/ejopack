@@ -36,6 +36,12 @@ final class Testimonials_Heavy extends EJOpack_Module
 		//* Save Referentie Metadata
 		add_action( 'save_post', array( $this, 'save_testimonial_metadata' ) );
 
+		//* Add scripts to settings page
+		add_action( 'admin_enqueue_scripts', array( $this, 'add_testimonials_scripts_and_styles' ) ); 
+
+		//* Register Settings for Settings Page
+		add_action( 'admin_init', array( $this, 'register_testimonials_settings' ) );
+
 		//* Add Settings Page
 		add_action( 'admin_menu', array( $this, 'add_testimonials_setting_menu' ) );
 	}
@@ -53,7 +59,7 @@ final class Testimonials_Heavy extends EJOpack_Module
 	//*
 	public function register_testimonials_post_type() 
 	{
-		include( $this->dir . 'register-post-type.php' );
+		include( $this->dir . 'inc/register-post-type.php' );
 	}
 
 	//*
@@ -72,7 +78,7 @@ final class Testimonials_Heavy extends EJOpack_Module
 	//*
 	public function render_testimonials_metabox( $post )
 	{
-		include( $this->dir . 'testimonials-metabox.php' );		
+		include( $this->dir . 'admin/testimonials-metabox.php' );		
 	}
 
 	// Manage saving Metabox Data
@@ -119,12 +125,34 @@ final class Testimonials_Heavy extends EJOpack_Module
 		);
 	}
 
+	//* Register settings
+	public function register_testimonials_settings() {
+		register_setting( "{$this->slug}-settings", "{$this->slug}-settings", array( $this, 'my_validation' ) ); 
+	}
+
+	//* Validate settings?
+	public function my_validation() {
+
+	}
+
 	//*
 	public function testimonials_settings()
 	{
-		include( $this->dir . 'testimonials-heavy-settings-page.php' );
+		include( $this->dir . 'admin/testimonials-heavy-settings-page.php' );
 	}
 
+	//* Manage admin scripts and stylesheets
+	public function add_testimonials_scripts_and_styles()
+	{
+		//* Settings Page
+		if (isset($_GET['page']) && $_GET['page'] == 'testimonials-settings') {
+			//* Settings page javascript
+			wp_enqueue_script("{$this->slug}-admin-settings-page-js", "{$this->uri}js/admin-settings-page.js", array('jquery'));
+
+			//* Settings page stylesheet
+			wp_enqueue_style( "{$this->slug}-admin-settings-page-css", "{$this->uri}css/admin-settings-page.css" );
+		}
+	}
 }
 
 Testimonials_Heavy::get_instance();
