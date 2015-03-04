@@ -25,7 +25,12 @@ final class Testimonials_Heavy extends EJOpack_Module
 	//* Plugin setup.
 	protected function __construct() 
 	{
-		add_action( 'plugins_loaded', array( $this, 'setup' ) );
+		//* Setup
+		$this->slug = self::get_slug( __FILE__ );
+		$this->dir = EJOpack::get_module_path( $this->slug );
+		$this->uri = EJOpack::get_module_uri( $this->slug );
+		$this->post_type_menu_slug = "edit.php?post_type={$this->post_type}";
+
 
 		//* Register Post Type
 		add_action( 'init', array( $this, 'register_testimonials_post_type' ) );
@@ -36,24 +41,16 @@ final class Testimonials_Heavy extends EJOpack_Module
 		//* Save Referentie Metadata
 		add_action( 'save_post', array( $this, 'save_testimonial_metadata' ) );
 
-		//* Add scripts to settings page
-		add_action( 'admin_enqueue_scripts', array( $this, 'add_testimonials_scripts_and_styles' ) ); 
+		/* SETTINGS PAGE */
 
 		//* Register Settings for Settings Page
-		add_action( 'admin_init', array( $this, 'register_testimonials_settings' ) );
+		add_action( 'admin_init', array( $this, 'initialize_testimonials_settings' ) );
 
 		//* Add Settings Page
 		add_action( 'admin_menu', array( $this, 'add_testimonials_setting_menu' ) );
-	}
 
-	//*
-	public function setup() 
-	{
-		$this->slug = self::get_slug( __FILE__ );
-		$this->dir = EJOpack::get_module_path( $this->slug );
-		$this->uri = EJOpack::get_module_uri( $this->slug );
-
-		$this->post_type_menu_slug = "edit.php?post_type={$this->post_type}";
+		//* Add scripts to settings page
+		add_action( 'admin_enqueue_scripts', array( $this, 'add_testimonials_settings_scripts_and_styles' ) ); 
 	}
 
 	//*
@@ -112,6 +109,10 @@ final class Testimonials_Heavy extends EJOpack_Module
 			update_post_meta( $post_id, $meta_key, $_POST[$this->slug] );
 	}
 
+	/***********************
+	 * Settings Page
+	 ***********************/
+
 	//*
 	public function add_testimonials_setting_menu()
 	{
@@ -126,23 +127,40 @@ final class Testimonials_Heavy extends EJOpack_Module
 	}
 
 	//* Register settings
-	public function register_testimonials_settings() {
-		register_setting( "{$this->slug}-settings", "{$this->slug}-settings", array( $this, 'my_validation' ) ); 
-	}
-
-	//* Validate settings?
-	public function my_validation() {
-
+	public function initialize_testimonials_settings() 
+	{
+		// Add option if not already available
+		if( false == get_option( 'testimonials_settings' ) ) {  
+			add_option( 'testimonials_settings' );
+		} 
 	}
 
 	//*
 	public function testimonials_settings()
 	{
-		include( $this->dir . 'admin/testimonials-heavy-settings-page.php' );
+		include_once( $this->dir . 'admin/testimonials-heavy-settings-page.php' );
+	}
+
+	//* Save testimonials settings
+	public function save_testimonials_settings($option_name, $testimonials_settings)
+	{
+		// //* Check that the user is allowed to edit the options
+		// if ( ! current_user_can( 'manage_options' ) ) {
+		// 	echo "<div class='error'><p>Testimonial settings not updated.</p></div>";
+		// 	return;
+		// }
+
+		// // Verify where the data originated
+		// if ( !isset($_POST["{$this->slug}-meta-nonce"]) || !wp_verify_nonce( $_POST["{$this->slug}-meta-nonce"], "{$this->slug}-metabox-" . $post_id ) ) {
+		// 	echo "<div class='error'><p>Testimonial settings not updated.</p></div>";
+		// 	return;
+		// }
+
+		update_option( $option_name, $testimonials_settings);
 	}
 
 	//* Manage admin scripts and stylesheets
-	public function add_testimonials_scripts_and_styles()
+	public function add_testimonials_settings_scripts_and_styles()
 	{
 		//* Settings Page
 		if (isset($_GET['page']) && $_GET['page'] == 'testimonials-settings') {
@@ -156,3 +174,5 @@ final class Testimonials_Heavy extends EJOpack_Module
 }
 
 Testimonials_Heavy::get_instance();
+
+include_once( Testimonials_Heavy::get_instance()->dir . 'inc/helper-functions.php' );
