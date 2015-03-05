@@ -6,34 +6,48 @@ final class Testimonials_Heavy extends EJOpack_Module
 	protected static $instance;
 
 	//* Version number of this module
-	public $version = '0.8.0';
+	public static $version = '0.8.0';
 
 	//* Store the post_type of this module
-	public $post_type = 'ejo_testimonials';
+	public static $post_type = 'ejo_testimonials';
 
 	//* Store the slug of this module
-	public $slug;
+	public static $slug;
 
 	//* Stores the directory path for this module.
-	public $dir;
+	public static $dir;
 
 	//* Stores the directory URI for this module.
-	public $uri;
+	public static $uri;
+	public static $test;
 
 	//* Plugin setup.
 	protected function __construct() 
 	{
+		/* SETUP */
+
 		//* Setup data
 		$this->setup();
 		
 		//* Register Post Type
 		add_action( 'init', array( $this, 'register_testimonials_post_type' ) );
 
+		//* Load includes
+		add_action( 'plugins_loaded', array( $this, 'includes' ) );
+
+
+		/* METABOX */
+
 		//* Add Referentie Metabox
-		add_action( "add_meta_boxes_{$this->post_type}", array( $this, 'add_testimonials_metabox' ) );
+		add_action( "add_meta_boxes_".self::$post_type, array( $this, 'add_testimonials_metabox' ) );
 
 		//* Save Referentie Metadata
 		add_action( 'save_post', array( $this, 'save_testimonial_metadata' ) );
+
+
+		/* WIDGET */
+		add_action( 'widgets_init', array( $this, 'register_widget' ) );
+
 
 		/* SETTINGS PAGE */
 
@@ -48,31 +62,39 @@ final class Testimonials_Heavy extends EJOpack_Module
 	}
 
 	//* Setup
-	public function setup() 
+	private static function setup() 
 	{
 		//* Slug
-		$this->slug = $this->get_slug( __FILE__ );
+		self::$slug = self::get_slug( __FILE__ );
 
 		//* Path & Url
-		$this->dir = EJOpack::get_module_path( $this->slug );
-		$this->uri = EJOpack::get_module_uri( $this->slug );
+		self::$dir = EJOpack::get_module_path( self::$slug );
+		self::$uri = EJOpack::get_module_uri( self::$slug );
 
+		self::$test = 'test2';
+		self::$test = 'test3';
 	}
 
-	//*
+	//* Register Post Type
 	public function register_testimonials_post_type() 
 	{
-		include( $this->dir . 'inc/register-post-type.php' );
+		include( self::$dir . 'inc/register-post-type.php' );
+	}
+
+	//* Load includes
+	public function includes() 
+	{
+		require_once( self::$dir . 'inc/testimonials-heavy-widget.php' );
 	}
 
 	//*
 	public function add_testimonials_metabox() 
 	{
 		add_meta_box( 
-			"{$this->post_type}_metabox", 
+			self::$post_type. '_metabox', 
 			'Referentie Informatie', 
 			array( $this, 'render_testimonials_metabox' ), 
-			$this->post_type, 
+			self::$post_type, 
 			'normal', 
 			'high' 
 		);
@@ -81,7 +103,7 @@ final class Testimonials_Heavy extends EJOpack_Module
 	//*
 	public function render_testimonials_metabox( $post )
 	{
-		include( $this->dir . 'admin/testimonials-metabox.php' );		
+		include( self::$dir . 'admin/testimonials-metabox.php' );		
 	}
 
 	// Manage saving Metabox Data
@@ -104,13 +126,22 @@ final class Testimonials_Heavy extends EJOpack_Module
 			return;
 
 		// Verify where the data originated
-		if ( !isset($_POST["{$this->slug}-meta-nonce"]) || !wp_verify_nonce( $_POST["{$this->slug}-meta-nonce"], "{$this->slug}-metabox-" . $post_id ) )
+		if ( !isset($_POST[self::$slug."-meta-nonce"]) || !wp_verify_nonce( $_POST[self::$slug."-meta-nonce"], self::$slug."-metabox-" . $post_id ) )
 			return;
 
-		$meta_key = $this->slug;
+		$meta_key = self::$slug;
 
-		if ( isset( $_POST[$this->slug] ) )
-			update_post_meta( $post_id, $meta_key, $_POST[$this->slug] );
+		if ( isset( $_POST[self::$slug] ) )
+			update_post_meta( $post_id, $meta_key, $_POST[self::$slug] );
+	}
+
+
+	/***********************
+	 * Widget
+	 ***********************/
+	public function register_widget() 
+	{
+		register_widget( 'Testimonials_Heavy_Widget' );
 	}
 
 	/***********************
@@ -121,7 +152,7 @@ final class Testimonials_Heavy extends EJOpack_Module
 	public function add_testimonials_setting_menu()
 	{
 		add_submenu_page( 
-			"edit.php?post_type={$this->post_type}", 
+			"edit.php?post_type=".self::$post_type, 
 			'Referentie Instellingen', 
 			'Instellingen', 
 			'edit_theme_options', 
@@ -142,7 +173,7 @@ final class Testimonials_Heavy extends EJOpack_Module
 	//*
 	public function testimonials_settings()
 	{
-		include_once( $this->dir . 'admin/testimonials-heavy-settings-page.php' );
+		include_once( self::$dir . 'admin/testimonials-heavy-settings-page.php' );
 	}
 
 	//* Save testimonials settings
@@ -155,7 +186,7 @@ final class Testimonials_Heavy extends EJOpack_Module
 		// }
 
 		// // Verify where the data originated
-		// if ( !isset($_POST["{$this->slug}-meta-nonce"]) || !wp_verify_nonce( $_POST["{$this->slug}-meta-nonce"], "{$this->slug}-metabox-" . $post_id ) ) {
+		// if ( !isset($_POST[self::$slug."-meta-nonce"]) || !wp_verify_nonce( $_POST[self::$slug."-meta-nonce"], self::$slug."-metabox-" . $post_id ) ) {
 		// 	echo "<div class='error'><p>Testimonial settings not updated.</p></div>";
 		// 	return;
 		// }
@@ -169,14 +200,27 @@ final class Testimonials_Heavy extends EJOpack_Module
 		//* Settings Page
 		if (isset($_GET['page']) && $_GET['page'] == 'testimonials-settings') {
 			//* Settings page javascript
-			wp_enqueue_script("{$this->slug}-admin-settings-page-js", "{$this->uri}js/admin-settings-page.js", array('jquery'));
+			wp_enqueue_script(self::$slug."-admin-settings-page-js", self::$uri ."js/admin-settings-page.js", array('jquery'));
 
 			//* Settings page stylesheet
-			wp_enqueue_style( "{$this->slug}-admin-settings-page-css", "{$this->uri}css/admin-settings-page.css" );
+			wp_enqueue_style( self::$slug."-admin-settings-page-css", self::$uri ."css/admin-settings-page.css" );
 		}
+	}
+
+	public static function ejo_testimonials_loop()
+	{
+		// zie helper functions
+	}
+
+	//* Get testimonial
+	public static function ejo_get_testimonial($post_id, $testimonials_settings)
+	{
+		// zie helper functions
 	}
 }
 
 Testimonials_Heavy::init();
 
-include_once( Testimonials_Heavy::init()->dir . 'inc/helper-functions.php' );
+// write_log(Testimonials_Heavy::$test);
+
+include_once( Testimonials_Heavy::$dir . 'inc/helper-functions.php' );

@@ -3,7 +3,7 @@
  * Plugin Name: EJOpack
  * Plugin URI: http://github.com/ejoweb
  * Description: Bundle of modules to support and extend the theme.
- * Version: 0.2.9
+ * Version: 0.3.0
  * Author: Erik Joling
  * Author URI: http://www.erikjoling.nl/
  *
@@ -147,7 +147,7 @@ final class EJOpack
 	}
 
 	//* Returns the instance.
-	public static function get_instance() 
+	public static function init() 
 	{
 		if ( !self::$instance )
 			self::$instance = new self;
@@ -156,4 +156,4 @@ final class EJOpack
 	}
 }
 
-EJOpack::get_instance();
+EJOpack::init();

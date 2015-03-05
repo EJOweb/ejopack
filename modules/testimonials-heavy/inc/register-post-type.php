@@ -32,4 +32,4 @@
 		
 	);
 
-	register_post_type( $this->post_type, $args );
+	register_post_type( self::$post_type, $args );
