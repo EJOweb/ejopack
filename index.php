@@ -3,7 +3,7 @@
  * Plugin Name: EJOpack
  * Plugin URI: http://github.com/ejoweb
  * Description: Bundle of modules to support and extend the theme.
- * Version: 0.2.3
+ * Version: 0.2.9
  * Author: Erik Joling
  * Author URI: http://www.erikjoling.nl/
  *
@@ -60,7 +60,7 @@ final class EJOpack
 	);
 
 	public static $active_modules = array(
-		// 'menu-marquee',
+		'menu-marquee',
 		// 'wordpress-admin-control',
 		'testimonials-heavy',
 	);

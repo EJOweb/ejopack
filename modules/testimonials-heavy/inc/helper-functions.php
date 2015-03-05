@@ -59,19 +59,27 @@ function ejo_get_testimonial($post_id, $testimonials_settings)
 
 		switch ($id) {
 			case 'title':
-				$title_link = sprintf( '<a href="%s" rel="bookmark">%s</a>', get_permalink( $post_id ), get_the_title( $post_id ) );
-				$title = sprintf( '<h2 class="%s" itemprop="%s">%s</h2>', 'entry-title', 'headline', $title_link );
+				$title = get_the_title( $post_id );
+				$heading = is_singular() ? 'h1' : 'h2';
+				if( !is_singular() ) {
+					$title = sprintf( '<a href="%s" rel="bookmark">%s</a>', get_permalink( $post_id ), $title );
+				}
+				$title = sprintf( "<{$heading} class='%s' itemprop='%s'>%s</{$heading}>", 'entry-title', 'headline', $title );
 				$testimonial['title'] = $title;
 				break;
 
 			case 'image':
-				$image = get_the_post_thumbnail( $post_id, 'medium', array( 'class' => 'alignleft' ) );
+				$align = is_singular() ? 'alignright' : 'alignleft';
+				$image = get_the_post_thumbnail( $post_id, 'medium', array( 'class' => $align ) );
 				$testimonial['image'] = $image;
 				break;
 			
 			case 'content':
-				$content = sprintf( '<blockquote>%s</blockquote>', get_the_excerpt() );
-				$content .= sprintf( '<p><a class="%s" href="%s">%s</a></p>', 'button', get_permalink( $post_id ), 'Lees meer' );
+				$quote = (is_singular()) ? get_the_content() : get_the_excerpt();
+				$content = sprintf( '<blockquote>%s</blockquote>', $quote );
+				if( !is_singular() ) {
+					$content .= sprintf( '<p><a class="%s" href="%s">%s</a></p>', 'button', get_permalink( $post_id ), 'Lees meer' );
+				}
 				$testimonial['content'] = $content;
 				break;
 			
@@ -83,7 +91,13 @@ function ejo_get_testimonial($post_id, $testimonials_settings)
 			
 			case 'info':
 				if ( isset($testimonial_data['info']) ) {
-					$testimonial['info'] = '<span class="info">' . $testimonial_data['info'] . '</span>';
+					$info = $testimonial_data['info'];
+					if ( is_singular() && isset($testimonial_data['url']) ) {
+						$url = $testimonial_data['url'];
+						$url = (strpos($url, "http://") === 0) ? $url : "http://{$url}"; //* Check if http://
+						$info = sprintf( '<a href="%s" target="_blank">%s</a>', $url, $info );
+					}
+					$testimonial['info'] = '<span class="info">' . $info . '</span>';
 				}
 				break;
 			

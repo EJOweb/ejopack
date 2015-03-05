@@ -6,7 +6,10 @@ final class Testimonials_Heavy extends EJOpack_Module
 	protected static $instance;
 
 	//* Version number of this module
-	public $version = '1.0.0';
+	public $version = '0.8.0';
+
+	//* Store the post_type of this module
+	public $post_type = 'ejo_testimonials';
 
 	//* Store the slug of this module
 	public $slug;
@@ -17,21 +20,12 @@ final class Testimonials_Heavy extends EJOpack_Module
 	//* Stores the directory URI for this module.
 	public $uri;
 
-	//* Store the post_type of this module
-	public $post_type = 'ejo_testimonials';
-
-	public $post_type_menu_slug;
-
 	//* Plugin setup.
 	protected function __construct() 
 	{
-		//* Setup
-		$this->slug = self::get_slug( __FILE__ );
-		$this->dir = EJOpack::get_module_path( $this->slug );
-		$this->uri = EJOpack::get_module_uri( $this->slug );
-		$this->post_type_menu_slug = "edit.php?post_type={$this->post_type}";
-
-
+		//* Setup data
+		$this->setup();
+		
 		//* Register Post Type
 		add_action( 'init', array( $this, 'register_testimonials_post_type' ) );
 
@@ -51,6 +45,18 @@ final class Testimonials_Heavy extends EJOpack_Module
 
 		//* Add scripts to settings page
 		add_action( 'admin_enqueue_scripts', array( $this, 'add_testimonials_settings_scripts_and_styles' ) ); 
+	}
+
+	//* Setup
+	public function setup() 
+	{
+		//* Slug
+		$this->slug = $this->get_slug( __FILE__ );
+
+		//* Path & Url
+		$this->dir = EJOpack::get_module_path( $this->slug );
+		$this->uri = EJOpack::get_module_uri( $this->slug );
+
 	}
 
 	//*
@@ -103,8 +109,6 @@ final class Testimonials_Heavy extends EJOpack_Module
 
 		$meta_key = $this->slug;
 
-		write_log( $_POST[$this->slug] );
-
 		if ( isset( $_POST[$this->slug] ) )
 			update_post_meta( $post_id, $meta_key, $_POST[$this->slug] );
 	}
@@ -117,7 +121,7 @@ final class Testimonials_Heavy extends EJOpack_Module
 	public function add_testimonials_setting_menu()
 	{
 		add_submenu_page( 
-			$this->post_type_menu_slug, 
+			"edit.php?post_type={$this->post_type}", 
 			'Referentie Instellingen', 
 			'Instellingen', 
 			'edit_theme_options', 
@@ -173,6 +177,6 @@ final class Testimonials_Heavy extends EJOpack_Module
 	}
 }
 
-Testimonials_Heavy::get_instance();
+Testimonials_Heavy::init();
 
-include_once( Testimonials_Heavy::get_instance()->dir . 'inc/helper-functions.php' );
+include_once( Testimonials_Heavy::init()->dir . 'inc/helper-functions.php' );

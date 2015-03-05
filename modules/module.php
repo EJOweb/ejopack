@@ -9,12 +9,6 @@ abstract class EJOpack_Module
 	//* Holds the instance of this class.
 	protected static $instance;
 
-	//* Version number of this module
-	public $version = '0.0.0';
-
-	//* Store the slug of this module
-	public $slug = 'Empty slug';
-
 	//*
 	final protected static function get_slug( $file = '' )
 	{
@@ -27,7 +21,7 @@ abstract class EJOpack_Module
 	}
 
 	//* Returns the instance.
-	final public static function get_instance() 
+	final public static function init() 
 	{
 		if ( !static::$instance )
 			static::$instance = new static;
