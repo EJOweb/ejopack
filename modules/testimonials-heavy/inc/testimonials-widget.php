@@ -28,7 +28,99 @@ class EJO_Testimonials_Widget extends WP_Widget {
 		if ( !empty($instance['title']) )
 			echo $args['before_title'] . $instance['title'] . $args['after_title'];
 
+		$query_args = array(
+			'orderby' => $instance['sort'],
+			'posts_per_page' => $instance['count'],
+			'post_type' => EJO_Testimonials::$post_type,
+		);
+		$testimonials = new WP_Query($query_args);
+		if ( $testimonials->have_posts() ) {		
+
+			echo '<div class="testimonials-container">';
+
+			while ( $testimonials->have_posts() ) { 
+				$testimonials->the_post();
+
+				$testimonial = self::get_testimonial( get_the_ID(), $instance['view_settings'] );
+
+				echo '<div class="testimonial">';
+				foreach ($testimonial as $testimonial_part) {
+					echo $testimonial_part;
+				}
+				echo '</div>';
+				
+			}
+
+			echo '</div>';
+
+		} else {
+			/* No testimonials */
+		}
+		/* Restore original Post Data */
+		wp_reset_postdata();
+
 		echo $args['after_widget'];
+	}
+
+	function get_testimonial($post_id, $testimonials_settings)
+	{
+		//* Get testimonial meta data
+		$testimonial_data = get_post_meta( $post_id, 'testimonials-heavy', true );
+
+		//* Keeper of the testimonial output
+		$testimonial = array();
+
+		//* Get testimonials info in right order
+		foreach ($testimonials_settings as $id => $field) {
+
+			//* Skip the fields which are to be hidden
+			if ($field['show'] === false)
+				continue;
+
+			switch ($id) {
+				case 'title':
+					$title = get_the_title( $post_id );
+					$heading = 'h2';
+					$title = sprintf( '<a href="%s" rel="bookmark">%s</a>', get_permalink( $post_id ), $title );
+					$title = sprintf( "<{$heading} class='%s' itemprop='%s'>%s</{$heading}>", 'entry-title', 'headline', $title );
+					$testimonial['title'] = $title;
+					break;
+
+				case 'image':
+					$align = 'alignleft';
+					$image = get_the_post_thumbnail( $post_id, 'medium', array( 'class' => $align ) );
+					$testimonial['image'] = $image;
+					break;
+				
+				case 'content':
+					$quote = get_the_excerpt();
+					$content = sprintf( '<blockquote>%s</blockquote>', $quote );
+					$content .= sprintf( '<p><a class="%s" href="%s">%s</a></p>', 'button', get_permalink( $post_id ), 'Lees meer' );
+					$testimonial['content'] = $content;
+					break;
+				
+				case 'author':
+					if ( isset($testimonial_data['author']) ) {
+						$testimonial['author'] = '<span class="author">' . $testimonial_data['author'] . '</span>';
+					}
+					break;
+				
+				case 'info':
+					if ( isset($testimonial_data['info']) ) {
+						$info = $testimonial_data['info'];
+						$testimonial['info'] = '<span class="info">' . $info . '</span>';
+					}
+					break;
+				
+				case 'date':
+					if ( isset($testimonial_data['date']) ) {
+						$testimonial['date'] = '<span class="date">' . $testimonial_data['date'] . '</span>';
+					}
+					break;						
+			}
+		}
+
+		return $testimonial;
 	}
 
 	//* Update a particular instance.
@@ -36,11 +128,10 @@ class EJO_Testimonials_Widget extends WP_Widget {
 
 		$new_instance['title'] = strip_tags( $new_instance['title'] );
 
+		if(!empty($new_instance['view_settings']))
+			$new_instance['view_settings'] = EJO_Testimonials_Settings::testimonials_template_settings_checkbox_fix($new_instance['view_settings']);
+	
 		write_log($new_instance);
-
-		// if ( ! empty( $new_instance['nav_menu'] ) ) {
-		// 	$instance['nav_menu'] = (int) $new_instance['nav_menu'];
-		// }
 
 		return $new_instance;
 	}
@@ -85,7 +176,6 @@ class EJO_Testimonials_Widget extends WP_Widget {
 			);
 
 			$view_settings = ( isset($instance['view_settings']) ) ? $instance['view_settings']: $view_settings_default;
-			// echo "<pre>";print_r($view_settings);echo "</pre>";
 
 		?>
 			<table class="form-table view_settings">
@@ -110,12 +200,13 @@ class EJO_Testimonials_Widget extends WP_Widget {
 					</td>
 					<td>
 						<?php
+							$checked = (isset($field['show'])) ? checked($field['show'], true, false): '';
 							echo 
 								"<input".
 								" type='checkbox'".
 								" name='{$this->get_field_name('view_settings')}[{$id}][show]'".
 								" id='view-settings-{$id}-show'".
-								  checked($field['show'], true, false) .
+								  $checked .
 								">";
 							echo "<label for='view-settings-{$id}-show'>Tonen</label>";
 						?>
@@ -128,10 +219,35 @@ class EJO_Testimonials_Widget extends WP_Widget {
 			</table>
 
 			<ul>
-				<li>Volgorde en Visibility</li>
-				<li>Aantal testimonials</li>
-				<li>Sortering van testimonials [random, datum]</li>
-				<li></li>
+				<li>
+					<label for="testimonials-number">Aantal referenties: </label>
+					<select id="testimonials-number" name="<?php echo $this->get_field_name('count'); ?>">
+						<?php 
+							for ( $i=1; $i<=10; $i++ ){
+								$selected = ( isset($instance['count']) && $i == $instance['count'] ) ? 'selected="selected"': '';
+								echo "<option value='{$i}' {$selected}>{$i}</option>";
+							}
+						?>
+					</select>
+				</li>
+				<li>
+					<?php
+
+					?>
+					<label for="testimonials-sort">Sortering: </label>
+					<select id="testimonials-sort" name="<?php echo $this->get_field_name('sort'); ?>">
+						<?php 
+							$sort_options = array(
+								'rand' => 'Random',
+								'date' => 'Nieuw - Oud',
+							);
+							foreach ( $sort_options as $key => $label ){
+								$selected = ( isset($instance['sort']) && $key == $instance['sort'] ) ? 'selected="selected"': '';
+								echo "<option value='{$key}' {$selected}>{$label}</option>";
+							}
+						?>
+					</select>
+				</li>
 			</ul>
 		<?php
 		

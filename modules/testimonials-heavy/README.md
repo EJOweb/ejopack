@@ -8,3 +8,6 @@
 ### Other ###
 - image-size
 - loop-function
+
+# Filters toevoegen #
+Zodat je op basis van filter ($image, $title, $content, $author, $info, $date) volgorde kunt aanpassen.

@@ -2,8 +2,8 @@
 /**
  * Plugin Name: EJOpack
  * Plugin URI: http://github.com/ejoweb
- * Description: Bundle of modules to support and extend the theme.
- * Version: 0.3.1
+ * Description: Bundle of modules to support and extend the theme. By EJOweb.
+ * Version: 0.3.2
  * Author: Erik Joling
  * Author URI: http://www.erikjoling.nl/
  *
@@ -60,7 +60,15 @@ final class EJOpack
 	);
 
 	public static $active_modules = array(
+		// 'feature-last-post',
+		// 'facebook-likebox',
+		// 'performance-testing',
 		'menu-marquee',
+		// 'fancybox',
+		// 'selectivizr',
+		// 'extended-recent-posts-widget',
+		// 'font-awesome',
+		// 'dynamic-sidebars',
 		// 'wordpress-admin-control',
 		'testimonials-heavy',
 	);
