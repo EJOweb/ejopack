@@ -3,7 +3,7 @@
  * Plugin Name: EJOpack
  * Plugin URI: http://github.com/ejoweb
  * Description: Bundle of modules to support and extend the theme.
- * Version: 0.3.0
+ * Version: 0.3.1
  * Author: Erik Joling
  * Author URI: http://www.erikjoling.nl/
  *

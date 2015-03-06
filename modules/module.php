@@ -10,7 +10,7 @@ abstract class EJOpack_Module
 	protected static $instance;
 
 	//*
-	final protected static function get_slug( $file = '' )
+	final public static function get_slug( $file = '' )
 	{
 		if (!empty($file)) {
 			return basename( $file, ".php" );
