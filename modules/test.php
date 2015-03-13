@@ -1,8 +1,7 @@
 <?php
 
-add_action('after_setup_theme', 'ejopack_test');
+add_action('after_setup_theme', 'ejopack_test', 200);
 function ejopack_test()
 {
-
 	write_log(EJOpack::get_available_modules());
 }

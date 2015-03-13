@@ -3,7 +3,7 @@
  * Plugin Name: EJOpack
  * Plugin URI: http://github.com/ejoweb
  * Description: Bundle of modules to support and extend the theme. By EJOweb.
- * Version: 0.3.3
+ * Version: 0.3.4
  * Author: Erik Joling
  * Author URI: http://www.erikjoling.nl/
  *
@@ -18,88 +18,133 @@
  * @license   http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  */
 
-// add_action( 'plugins_loaded', array( 'Jetpack', 'load_modules' ), 100 );
-// $modules = array_filter( Jetpack::get_active_modules(), array( 'Jetpack', 'is_module' ) );
-// require Jetpack::get_module_path( $module );
-// get_active_modules() {
-// 		$active = Jetpack_Options::get_option( 'active_modules' );
-// }
-// class Jetpack_Carousel {
-//	no instance
-// }
-// new Jetpack_Carousel;
+//* Load classes
+require( EJOpack::$dir . 'classes/class.settings.php' );
 
-class EJOpack 
+final class EJOpack 
 {
 	//* Holds the instance of this class.
 	private static $instance;
 
-	//* Modules setup
-	private static $available_modules = array(
-		'feature-last-post',
-		'facebook-likebox',
-		'performance-testing',
-		'menu-marquee',
-		'fancybox',
-		'selectivizr',
-		'extended-recent-posts-widget',
-		'font-awesome',
-		'dynamic-sidebars',
-		'wordpress-admin-control',
-		'testimonials-heavy',
-	);
+	//* Stores the version of this plugin.
+	public static $version;
 
-	public $active_modules;
+	//* Stores the directory path for this plugin.
+	public static $dir;
+
+	//* Stores the directory URI for this plugin.
+	public static $uri;
+
+	//* Stores the base directory path for this plugin.
+	public static $base_dir;
+
+	//* Stores the base directory uri for this plugin.
+	public static $base_uri;
+
+	//* Stores the modules directory path for this plugin.
+	public static $modules_dir;
+
+	//* Stores the modules directory uri for this plugin.
+	public static $modules_uri;
+
+	//* Stores all the modules
+	public static $all_modules;
+
+	//* Stores the active modules
+	public static $active_modules;
 
 	//* Plugin setup.
-	public function __construct() {
+	private function __construct() 
+	{
+		//* Set the properties needed by the plugin.
+		add_action( 'plugins_loaded', array( $this, 'setup' ) );
 
-		/* Set the properties needed by the plugin. */
-		add_action( 'plugins_loaded', array( $this, 'setup' ), 101 );
+		//* Load the base files.
+		add_action( 'plugins_loaded', array( $this, 'load_base' ) );
 
-		/* Load the base files. */
-		add_action( 'plugins_loaded', array( $this, 'load_base' ), 102 );
+		//* Load the modules files.
+		add_action( 'plugins_loaded', array( $this, 'load_modules' ) );
 
-		/* Load the modules files. */
-		add_action( 'plugins_loaded', array( $this, 'load_active_modules' ), 103 );
-
+		//* Call class for settingspage
+		EJOpack_Settings::init();
 	}
 
 	//* Defines the directory path and URI for the plugin.
-	public function setup() 
+	public static function setup() 
 	{
 		// Store directory path and url of this plugin
-		define( 'EJOPACK_DIR', trailingslashit( plugin_dir_path( __FILE__ ) ) );
-		define( 'EJOPACK_URI', trailingslashit( plugin_dir_url(  __FILE__ ) ) );
+		self::$dir = trailingslashit( plugin_dir_path( __FILE__ ) );
+		self::$uri = trailingslashit( plugin_dir_url(  __FILE__ ) );
 
 		// Store base directory path and url of this plugin
-		define( 'EJOPACK_BASE_DIR', trailingslashit( EJOPACK_DIR . 'base' ) );
-		define( 'EJOPACK_BASE_URI', trailingslashit( EJOPACK_URI . 'base' ) );
+		self::$base_dir = trailingslashit( self::$dir . 'base' );
+		self::$base_uri = trailingslashit( self::$uri . 'base' );
 
 		// Store module directory path and url of this plugin
-		define( 'EJOPACK_MODULES_DIR', trailingslashit( EJOPACK_DIR . 'modules' ) );
-		define( 'EJOPACK_MODULES_URI', trailingslashit( EJOPACK_URI . 'modules' ) );
+		self::$modules_dir = trailingslashit( self::$dir . 'modules' );
+		self::$modules_uri = trailingslashit( self::$uri . 'modules' );
 
 		//* Set version based on metadata at top of this file
-		$plugin_data = get_file_data( __FILE__, array('Version' => 'Version') );
-		define( 'EJOPACK_VERSION', $plugin_data['Version'] );
+		self::$version = self::get_version(); 
+
+		//* Stores all the modules
+		self::$all_modules = self::get_all_modules();
+
+		//* Stores the active modules
+		self::$active_modules = self::get_active_modules();
 	}
 
-	public static function get_available_modules()
+	//* Get version number
+	private static function get_version()
 	{
-		return apply_filters( 'ejopack_available_modules', self::$available_modules );
+		//* Get metadata of this plugin
+		$plugin_data = get_file_data( __FILE__, array('Version' => 'Version') );
+
+		//* Return version number
+		return $plugin_data['Version'];
+	}
+
+	//* Get all modules
+	private static function get_all_modules()
+	{
+		//* Get paths of all subfolders in module-directory
+		$module_subdirectories = glob( self::$modules_dir . '*', GLOB_ONLYDIR );
+
+		//* Get only slug of module paths
+		$module_slugs = array_map( 'basename', $module_subdirectories );
+
+		//* Return the slugs
+		return $module_slugs;
+	}
+
+	//* Get all modules
+	private static function get_active_modules()
+	{
+		//* Load active modules from database
+		$active_modules = get_option( '_ejopack_active_modules', array() );
+
+		//* Temporary activation solution
+		$active_modules[] = 'testimonials-heavy';
+		$active_modules[] = 'menu-marquee';
+
+		//* Return the slugs
+		return $active_modules;
 	}
 
 	//* Loads base.
-	public function load_base() 
+	public static function load_base() 
 	{
-		require EJOPACK_BASE_DIR . 'write_log.php';
+		// require EJOPACK_BASE_DIR . 'write_log.php';
+		require  self::$base_dir . 'write_log.php';
 	}
 
 	//* Loads modules.
-	public function load_active_modules() 
+	public function load_modules() 
 	{
-		require EJOPACK_MODULES_DIR . 'test.php';
+		// require EJOPACK_MODULES_DIR . 'test.php';
+		write_log( self::$active_modules );
+
+		
 		// $active_modules = array();
 		// $active_modules = apply_filters('ejopack_active_modules', $active_modules);
 
@@ -118,27 +163,7 @@ class EJOpack
 		// }
 	}
 
-	//*
-	public function add_settings_page()
-	{
-		add_management_page(  
-			'EJOpack Instellingen', 
-			'EJOpack', 
-			'manage_options', 
-			'ejopack-settings', 
-			array( $this, 'settings_page' ) 
-		);
-	}
-
-	//*
-	public function settings_page()
-	{
-	?>
-		<div class='wrap' style="max-width:960px;">
-			<h2>EJOpack Instellingen</h2>
-		</div>
-	<?php
-	}
+	
 
 	//* Returns the instance.
 	public static function init() 
@@ -150,4 +175,5 @@ class EJOpack
 	}
 }
 
-new EJOpack;
+//* Call EJOpack
+EJOpack::init();
