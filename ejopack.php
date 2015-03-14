@@ -3,7 +3,7 @@
  * Plugin Name: EJOpack
  * Plugin URI: http://github.com/ejoweb
  * Description: Bundle of modules to support and extend the theme. By EJOweb.
- * Version: 0.3.4
+ * Version: 0.4.0
  * Author: Erik Joling
  * Author URI: http://www.erikjoling.nl/
  *
@@ -34,6 +34,12 @@ final class EJOpack
 
 	//* Stores the directory URI for this plugin.
 	public static $uri;
+
+	//* Stores the inc directory path for this plugin.
+	public static $inc_dir;
+
+	//* Stores the inc directory uri for this plugin.
+	public static $inc_uri;
 
 	//* Stores the base directory path for this plugin.
 	public static $base_dir;
@@ -76,6 +82,10 @@ final class EJOpack
 		self::$dir = trailingslashit( plugin_dir_path( __FILE__ ) );
 		self::$uri = trailingslashit( plugin_dir_url(  __FILE__ ) );
 
+		// Store inc directory path and url of this plugin
+		self::$inc_dir = trailingslashit( self::$dir . 'inc' );
+		self::$inc_uri = trailingslashit( self::$uri . 'inc' );
+
 		// Store base directory path and url of this plugin
 		self::$base_dir = trailingslashit( self::$dir . 'base' );
 		self::$base_uri = trailingslashit( self::$uri . 'base' );
@@ -107,14 +117,18 @@ final class EJOpack
 	//* Get all modules
 	private static function get_all_modules()
 	{
-		//* Get paths of all subfolders in module-directory
+		//* Get path of all folders in module-directory
 		$module_subdirectories = glob( self::$modules_dir . '*', GLOB_ONLYDIR );
 
-		//* Get only slug of module paths
-		$module_slugs = array_map( 'basename', $module_subdirectories );
+		//* Get slug from module paths
+		$module_list = array_map( 'basename', $module_subdirectories );
 
-		//* Return the slugs
-		return $module_slugs;
+		//* Remove waiting-line from module
+		if ( ($key = array_search( '_concept-modules', $module_list)) !== false ) 
+			unset($module_list[$key]);
+
+		//* Return the list
+		return $module_list;
 	}
 
 	//* Get all modules
@@ -142,7 +156,7 @@ final class EJOpack
 	public function load_modules() 
 	{
 		// require EJOPACK_MODULES_DIR . 'test.php';
-		write_log( self::$active_modules );
+		// write_log( self::$active_modules );
 
 		
 		// $active_modules = array();

@@ -1,5 +1,7 @@
 <?php
 
+//* Nog gelijktrekken met EOO EJOpack?
+
 final class Menu_Marquee extends EJOpack_Module 
 {
 	//* Holds the instance of this class.
