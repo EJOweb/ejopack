@@ -1,4 +1,9 @@
 <?php
+/**
+ * Module Name: Menu Marquee
+ * Description: Horizontal scroll a given menu using a widget 
+ * Version: 1.1.0
+ */
 
 //* Nog gelijktrekken met EOO EJOpack?
 

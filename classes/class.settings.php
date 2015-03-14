@@ -45,24 +45,47 @@ final class EJOpack_Settings
 
 				echo '<form action="' . $_SERVER['PHP_SELF'] . ' method="post">';
 
-				echo '<table>';
-				echo '<tbody>';
+				echo '<div class="ejopack-modules columns-'.$columns.'">';
 
 				foreach ($all_modules_table as $module_row) {
 
-					echo '<tr>';
+					echo '<div class="row">';
 
 					foreach ($module_row as $module) {
-						echo '<td>';
-						echo $module;
-						echo '</td>';
+
+						if (empty($module)) {
+							echo '<div class="module empty"></div>';
+							continue;
+						}
+
+						$module_info = 	get_file_data( 
+											EJOpack::$modules_dir . "{$module}/{$module}.php", 
+											array(
+												'name' => 'Module Name',
+												'description' => 'Description',
+												'version' => 'Version',
+											)
+										);
+						?>
+
+						<div class="module">
+							<div class="module-check">
+								<!-- <input type="checkbox" id="<?php echo $module; ?>" name="<?php echo $module; ?>"> -->
+							</div>
+							<div class="module-info">
+								<label class="module-title" for="<?php echo $module; ?>"><?php echo $module_info['name']; ?></label>
+								<p class="desc"><?php echo $module_info['description']; ?></p>
+								<p class="actions"><a href="">Activeren</a></p>
+							</div>
+						</div>
+
+						<?php
 					}
 
-					echo '</tr>';
+					echo '</div>';
 				}
 
-				echo '</table>';
-				echo '</tbody>';
+				echo '</div>';
 
 				echo '</form>';
 

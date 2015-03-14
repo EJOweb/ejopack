@@ -1,4 +1,9 @@
 <?php
+/**
+ * Module Name: Testimonials Plus
+ * Description: More extensive version of Testimonials Lightweight. 
+ * Version: 0.8.1
+ */
 
 final class EJO_Testimonials extends EJOpack_Module 
 {

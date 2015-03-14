@@ -1,4 +1,9 @@
 <?php
+/**
+ * Module Name: Wordpress Backend Control
+ * Description: Control the backend for yourself and clients
+ * Version: 1.0.0
+ */
 
 class Wordpress_Admin_Control
 {

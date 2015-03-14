@@ -3,7 +3,7 @@
  * Plugin Name: EJOpack
  * Plugin URI: http://github.com/ejoweb
  * Description: Bundle of modules to support and extend the theme. By EJOweb.
- * Version: 0.4.0
+ * Version: 0.4.1
  * Author: Erik Joling
  * Author URI: http://www.erikjoling.nl/
  *
@@ -17,9 +17,6 @@
  * @link      http://github.com/ejoweb
  * @license   http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  */
-
-//* Load classes
-require( EJOpack::$dir . 'classes/class.settings.php' );
 
 final class EJOpack 
 {
@@ -68,11 +65,11 @@ final class EJOpack
 		//* Load the base files.
 		add_action( 'plugins_loaded', array( $this, 'load_base' ) );
 
+		//* Load classes
+		add_action( 'plugins_loaded', array( $this, 'load_classes' ) );
+
 		//* Load the modules files.
 		add_action( 'plugins_loaded', array( $this, 'load_modules' ) );
-
-		//* Call class for settingspage
-		EJOpack_Settings::init();
 	}
 
 	//* Defines the directory path and URI for the plugin.
@@ -150,6 +147,16 @@ final class EJOpack
 	{
 		// require EJOPACK_BASE_DIR . 'write_log.php';
 		require  self::$base_dir . 'write_log.php';
+	}
+
+	//* Load classes
+	public function load_classes() 
+	{	
+		//* Include settings class
+		require( EJOpack::$dir . 'classes/class.settings.php' );
+
+		//* Call class for settings-page
+		EJOpack_Settings::init();
 	}
 
 	//* Loads modules.
