@@ -35,15 +35,33 @@ final class EJOpack_Settings
 	public function settings_page()
 	{
 	?>
-		<div class='wrap' style="max-width:960px;">
+		<div class='wrap'>
 			<h2>EJOpack Instellingen</h2>
+
+			<?php 
+				// Save testimonials data
+				if (isset($_POST['submit']) ) {
+
+					if (!empty($_POST['active_modules'])) {
+						self::save_settings( "_ejopack_active_modules", $_POST['active_modules'] ); 
+
+						echo "<div class='updated'><p>Settings updated successfully.</p></div>";
+					}
+				}
+			?>
+
 			<p>Lijst maken om modules aan te kunnen vinken en opslaan in options</p>
 			<?php
 
-				$columns = 2;				
-				$all_modules_table = self::array_to_table( EJOpack::$all_modules, $columns );
+				$active_modules = get_option( '_ejopack_active_modules', array() );
+				$all_modules = EJOpack::$all_modules;
 
-				echo '<form action="' . $_SERVER['PHP_SELF'] . ' method="post">';
+				write_log($active_modules);
+
+				$columns = 4;
+				$all_modules_table = self::array_to_table( $all_modules, $columns );
+
+				echo '<form action="' . esc_attr( wp_unslash( $_SERVER['REQUEST_URI'] ) ) . '" method="post">';
 
 				echo '<div class="ejopack-modules columns-'.$columns.'">';
 
@@ -66,16 +84,18 @@ final class EJOpack_Settings
 												'version' => 'Version',
 											)
 										);
+
+						$active_module = in_array($module, $active_modules);
 						?>
 
-						<div class="module">
+						<div class="module <?php echo ($active_module) ? 'active': ''; ?>">
 							<div class="module-check">
-								<!-- <input type="checkbox" id="<?php echo $module; ?>" name="<?php echo $module; ?>"> -->
+								<input type="checkbox" id="<?php echo $module; ?>" name="active_modules[]" value="<?php echo $module; ?>" <?php echo checked($active_module); ?>>
 							</div>
 							<div class="module-info">
 								<label class="module-title" for="<?php echo $module; ?>"><?php echo $module_info['name']; ?></label>
 								<p class="desc"><?php echo $module_info['description']; ?></p>
-								<p class="actions"><a href="">Activeren</a></p>
+								<!-- <p class="actions"><a href="">Activeren</a></p> -->
 							</div>
 						</div>
 
@@ -87,12 +107,32 @@ final class EJOpack_Settings
 
 				echo '</div>';
 
+				// submit_button( 'Wijzigingen opslaan' );
+				submit_button( 'Wijzigingen opslaan', 'secondary', 'submit' ); 
+
 				echo '</form>';
 
 			?>
 		</div>
 	<?php
 	}
+
+
+	//* Save EJOpack settings
+	public function save_settings($option_name, $option_values )
+	{
+		update_option( $option_name, $option_values);
+	}
+
+	// //* Make checkbox value boolean
+	// public function checkbox_to_boolean($) 
+ //    {
+	// 	foreach ($template_settings as $id => $field) {
+	// 		$template_settings[$id]['show'] = (isset($field['show'])) ? true : false;
+	// 	}
+
+	// 	return $template_settings;
+	// }
 
 	//* Prepare array for table
 	public function array_to_table( $one_dimensional_array, $columns = 2 )

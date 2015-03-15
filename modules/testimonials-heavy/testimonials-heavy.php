@@ -56,8 +56,8 @@ final class EJO_Testimonials extends EJOpack_Module
 		self::$slug = self::get_slug( __FILE__ );
 
 		//* Path & Url
-		self::$dir = EJOpack::get_module_path( self::$slug );
-		self::$uri = EJOpack::get_module_uri( self::$slug );
+		self::$dir = trailingslashit( EJOpack::$modules_dir . self::$slug );
+		self::$uri = trailingslashit( EJOpack::$modules_uri . self::$slug );
 	}
 
 	//* Setup

@@ -3,7 +3,7 @@
  * Plugin Name: EJOpack
  * Plugin URI: http://github.com/ejoweb
  * Description: Bundle of modules to support and extend the theme. By EJOweb.
- * Version: 0.4.1
+ * Version: 0.4.2
  * Author: Erik Joling
  * Author URI: http://www.erikjoling.nl/
  *
@@ -134,10 +134,6 @@ final class EJOpack
 		//* Load active modules from database
 		$active_modules = get_option( '_ejopack_active_modules', array() );
 
-		//* Temporary activation solution
-		$active_modules[] = 'testimonials-heavy';
-		$active_modules[] = 'menu-marquee';
-
 		//* Return the slugs
 		return $active_modules;
 	}
@@ -162,26 +158,20 @@ final class EJOpack
 	//* Loads modules.
 	public function load_modules() 
 	{
-		// require EJOPACK_MODULES_DIR . 'test.php';
-		// write_log( self::$active_modules );
+		write_log( self::$active_modules );
 
-		
-		// $active_modules = array();
-		// $active_modules = apply_filters('ejopack_active_modules', $active_modules);
+		require self::$modules_dir . 'module.php';
 
-		// // write_log($active_modules);
-
-		// require EJOPACK_MODULES_DIR . 'module.php';
-
-		// // Load the files of all active modules
-		// foreach ($active_modules as $module) {
-		// 	// Get module file
-		// 	$file = $this->get_module_file( $module );
-		// 	if ( ! file_exists( $file ) ) {
-		// 		continue;
-		// 	}
-		// 	require $file;
-		// }
+		// Load the files of all active modules
+		foreach (self::$active_modules as $module) {
+			// Get module file
+			$file = self::$modules_dir . "{$module}/{$module}.php";
+			write_log($file);
+			if ( ! file_exists( $file ) ) {
+				continue;
+			}
+			require $file;
+		}
 	}
 
 	

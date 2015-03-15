@@ -89,8 +89,8 @@ a {
 }
 
 .columns-4 .module {
-	width: 22%;
-	margin-right: 4%;
+	width: 24%;
+	margin-right: 1.33333%;
 }
 
 .columns-2 .module:last-child,
