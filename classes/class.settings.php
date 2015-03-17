@@ -56,9 +56,7 @@ final class EJOpack_Settings
 				$active_modules = get_option( '_ejopack_active_modules', array() );
 				$all_modules = EJOpack::$all_modules;
 
-				write_log($active_modules);
-
-				$columns = 4;
+				$columns = 3;
 				$all_modules_table = self::array_to_table( $all_modules, $columns );
 
 				echo '<form action="' . esc_attr( wp_unslash( $_SERVER['REQUEST_URI'] ) ) . '" method="post">';

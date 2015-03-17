@@ -60,16 +60,16 @@ final class EJOpack
 	private function __construct() 
 	{
 		//* Set the properties needed by the plugin.
-		add_action( 'plugins_loaded', array( $this, 'setup' ) );
+		add_action( 'plugins_loaded', array( $this, 'setup' ), 5 );
 
 		//* Load the base files.
-		add_action( 'plugins_loaded', array( $this, 'load_base' ) );
+		add_action( 'plugins_loaded', array( $this, 'load_base' ), 6 );
 
 		//* Load classes
-		add_action( 'plugins_loaded', array( $this, 'load_classes' ) );
+		add_action( 'plugins_loaded', array( $this, 'load_classes' ), 7 );
 
 		//* Load the modules files.
-		add_action( 'plugins_loaded', array( $this, 'load_modules' ) );
+		add_action( 'plugins_loaded', array( $this, 'load_modules' ), 8 );
 	}
 
 	//* Defines the directory path and URI for the plugin.
@@ -102,10 +102,10 @@ final class EJOpack
 	}
 
 	//* Get version number
-	private static function get_version()
+	private static function get_version( $file = __FILE__ )
 	{
 		//* Get metadata of this plugin
-		$plugin_data = get_file_data( __FILE__, array('Version' => 'Version') );
+		$plugin_data = get_file_data( $file, array('Version' => 'Version') );
 
 		//* Return version number
 		return $plugin_data['Version'];
@@ -158,15 +158,12 @@ final class EJOpack
 	//* Loads modules.
 	public function load_modules() 
 	{
-		write_log( self::$active_modules );
-
-		require self::$modules_dir . 'module.php';
+		require self::$modules_dir . 'ejopack-module.php';
 
 		// Load the files of all active modules
 		foreach (self::$active_modules as $module) {
 			// Get module file
 			$file = self::$modules_dir . "{$module}/{$module}.php";
-			write_log($file);
 			if ( ! file_exists( $file ) ) {
 				continue;
 			}

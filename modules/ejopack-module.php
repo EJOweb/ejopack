@@ -16,8 +16,17 @@ abstract class EJOpack_Module
 			return basename( $file, ".php" );
 		}
 
-		write_log( 'Problem while creating EJOpack module slug');
 		return $file;
+	}
+
+	//* Get version number
+	protected static function get_version( $file = __FILE__ )
+	{
+		//* Get metadata of this plugin
+		$plugin_data = get_file_data( $file, array('Version' => 'Version') );
+
+		//* Return version number
+		return $plugin_data['Version'];
 	}
 
 	//* Returns the instance.

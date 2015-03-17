@@ -11,10 +11,7 @@ final class EJO_Testimonials extends EJOpack_Module
 	protected static $instance;
 
 	//* Version number of this module
-	public static $version = '0.8.1';
-
-	//* Store the post_type of this module
-	public static $post_type = 'ejo_testimonials';
+	public static $version;
 
 	//* Store the slug of this module
 	public static $slug;
@@ -25,32 +22,36 @@ final class EJO_Testimonials extends EJOpack_Module
 	//* Stores the directory URI for this module.
 	public static $uri;
 
+	//* Store the post_type of this module
+	public static $post_type = 'ejo_testimonials';
+
 	//* Plugin setup.
 	protected function __construct() 
 	{
-		/* SETUP */
-
-		//* Setup data
-		self::set_module_data();
+		//* Setup
+		self::setup();
 
 		//* Include class files
-		self::include_classes();
+		// self::load_classes();
 
-		//* Register Post Type
+		// //* Register Post Type
 		add_action( 'init', array( $this, 'register_testimonials_post_type' ) );
 
 		//* Metabox
+		include_once( self::$dir . 'inc/testimonials-metabox-class.php' );
 		new EJO_Testimonials_Metabox( self::$post_type, self::$slug, self::$dir, self::$uri );
 
 		//* Settings
+		include_once( self::$dir . 'inc/testimonials-settings-class.php' );
 		new EJO_Testimonials_Settings( self::$post_type, self::$slug, self::$dir, self::$uri );
-	
-		/* WIDGET */
+
+		//* Widget
+		include_once( self::$dir . 'inc/testimonials-widget.php' );
 		add_action( 'widgets_init', array( 'EJO_Testimonials_Widget', 'register' ) );
 	}
 
 	//* Setup
-	private static function set_module_data() 
+	private static function setup() 
 	{
 		//* Slug
 		self::$slug = self::get_slug( __FILE__ );
@@ -58,10 +59,12 @@ final class EJO_Testimonials extends EJOpack_Module
 		//* Path & Url
 		self::$dir = trailingslashit( EJOpack::$modules_dir . self::$slug );
 		self::$uri = trailingslashit( EJOpack::$modules_uri . self::$slug );
+
+		self::$version = self::get_version( __FILE__ );
 	}
 
 	//* Setup
-	private static function include_classes() 
+	private static function load_classes() 
 	{
 		//* Metabox
 		include_once( self::$dir . 'inc/testimonials-metabox-class.php' );
@@ -71,6 +74,8 @@ final class EJO_Testimonials extends EJOpack_Module
 
 		//* Widget
 		include_once( self::$dir . 'inc/testimonials-widget.php' );
+
+
 	}
 
 	//* Register Post Type
